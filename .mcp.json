@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "chatgpt": {
-      "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/src/cli.mjs", "mcp"]
-    }
-  }
-}

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- Keep Claude Code MCP configuration in its plugin manifest so Qwen does not load Claude-only path variables or start an unrelated MCP OAuth flow.
+
 ## 0.1.2
 
 - Package the shared core through each harness's normal extension/plugin manager.

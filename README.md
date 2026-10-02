@@ -16,11 +16,11 @@ Install it through the client’s normal extension or plugin manager. Each packa
 |---|---|---|---|
 | Qwen Code | `qwen extensions install https://github.com/aeltawela/chatgpt-as-provider` | `qwen extensions update chatgpt-as-provider` | `qwen extensions uninstall chatgpt-as-provider` |
 | OpenCode | `opencode plugin add github:aeltawela/chatgpt-as-provider` | `opencode plugin update chatgpt-as-provider` | `opencode plugin remove chatgpt-as-provider` |
-| Pi | `pi install git:github.com/aeltawela/chatgpt-as-provider@v0.1.2` | `pi update --extensions` | `pi remove git:github.com/aeltawela/chatgpt-as-provider` |
+| Pi | `pi install git:github.com/aeltawela/chatgpt-as-provider@v0.1.3` | `pi update --extensions` | `pi remove git:github.com/aeltawela/chatgpt-as-provider` |
 | Gemini CLI | `gemini extensions install https://github.com/aeltawela/chatgpt-as-provider` | `gemini extensions update chatgpt-as-provider` | `gemini extensions uninstall chatgpt-as-provider` |
 | Claude Code | `claude plugin marketplace add aeltawela/chatgpt-as-provider` then `claude plugin install chatgpt-as-provider@chatgpt-as-provider` | `claude plugin update chatgpt-as-provider@chatgpt-as-provider` | `claude plugin uninstall chatgpt-as-provider@chatgpt-as-provider` |
 
-After restarting the harness when requested, call its `chatgpt_login` tool. It opens the official Sign in with ChatGPT browser link, waits for the localhost callback, checks OAuth state/PKCE/nonce and identity, and encrypts the credentials locally. Use `chatgpt_models` to inspect the account’s model catalog.
+After restarting the harness when requested, call its `chatgpt_login` tool. It opens the official Sign in with ChatGPT browser link, waits for the localhost callback, checks OAuth state/PKCE/nonce and identity, and encrypts the credentials locally. Use `chatgpt_models` to inspect the account’s model catalog. For Qwen, use this plugin tool for ChatGPT sign-in; do not use Qwen's MCP-server OAuth action, which is for remote MCP servers and is separate from this local extension login.
 
 Manual token entry is a terminal-only fallback for installations where the browser callback cannot work. From the installed package directory, run `node <plugin-directory>/src/cli.mjs login --manual-token` and paste into its hidden prompt. This accepts a bearer token only after `/v1/models` verifies it; it does not get OAuth identity or refresh guarantees, and the account identifier is a local fingerprint. Do not pass tokens in arguments, environment variables, chat, MCP tool calls, or settings.
 

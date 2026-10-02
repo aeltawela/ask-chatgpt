@@ -40,7 +40,9 @@ test('each harness uses its normal package installer and the package carries its
   const gemini=JSON.parse(await readFile(new URL('../gemini-extension.json',import.meta.url),'utf8'));
   assert.match(qwen.mcpServers.chatgpt.args[0],/\$\{extensionPath\}.*src\/cli\.mjs/);
   assert.match(gemini.mcpServers.chatgpt.args[0],/\$\{extensionPath\}.*src\/cli\.mjs/);
-  assert.match(JSON.parse(await readFile(new URL('../.mcp.json',import.meta.url),'utf8')).mcpServers.chatgpt.args[0],/\$\{CLAUDE_PLUGIN_ROOT\}.*src\/cli\.mjs/);
+  const claudePlugin=JSON.parse(await readFile(new URL('../.claude-plugin/plugin.json',import.meta.url),'utf8'));
+  assert.match(claudePlugin.mcpServers.chatgpt.args[0],/\$\{CLAUDE_PLUGIN_ROOT\}.*src\/cli\.mjs/);
+  await assert.rejects(readFile(new URL('../.mcp.json',import.meta.url),'utf8'),{code:'ENOENT'});
   const plugin=await import('../integrations/opencode/plugin.mjs'); assert.equal(typeof plugin.default.setup,'function'); assert.equal(plugin.default.id,'chatgpt-as-provider');
   const v2tools=[], v2skills=[];
   await plugin.default.setup({skill:{transform:async fn=>fn({add:value=>v2skills.push(value)})},tool:{transform:async fn=>fn({add:value=>v2tools.push(value)})}});

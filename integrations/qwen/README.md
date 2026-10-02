@@ -6,7 +6,7 @@ Install the encapsulated extension with Qwen's extension manager; the package in
 qwen extensions install https://github.com/aeltawela/chatgpt-as-provider
 ```
 
-Restart Qwen and call `chatgpt_login` once. It opens the official ChatGPT sign-in page and completes the localhost callback. Update with `qwen extensions update chatgpt-as-provider`; uninstall with `qwen extensions uninstall chatgpt-as-provider`.
+Restart Qwen and call the plugin's `chatgpt_login` tool once. It opens the official ChatGPT sign-in page and completes the localhost callback. Do not use Qwen's MCP-server OAuth action for this local server; that action is for remote MCP servers that publish OAuth discovery metadata. Update with `qwen extensions update chatgpt-as-provider`; uninstall with `qwen extensions uninstall chatgpt-as-provider`.
 
 If the browser callback is unavailable, use the local hidden-input fallback from the installed extension directory: `node <extension-directory>/src/cli.mjs login --manual-token`. Never put a token in chat, shell history, command arguments, settings, or a tool call.
 

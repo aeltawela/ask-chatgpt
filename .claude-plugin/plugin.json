@@ -1,7 +1,18 @@
 {
   "name": "chatgpt-as-provider",
   "description": "Ask ChatGPT through a local stdio MCP server.",
-  "version": "0.1.2",
-  "author": { "name": "aeltawela" },
-  "license": "MIT"
+  "version": "0.1.3",
+  "author": {
+    "name": "aeltawela"
+  },
+  "license": "MIT",
+  "mcpServers": {
+    "chatgpt": {
+      "command": "node",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/src/cli.mjs",
+        "mcp"
+      ]
+    }
+  }
 }
