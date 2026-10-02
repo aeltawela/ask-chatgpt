@@ -1,11 +1,13 @@
 {
   "name": "chatgpt-as-provider",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Ask ChatGPT or route a coding agent through a local ChatGPT OAuth gateway.",
   "mcpServers": {
     "chatgpt": {
-      "command": "chatgpt-as-provider",
-      "args": ["mcp"]
+      "command": "node",
+      "args": ["${extensionPath}/src/cli.mjs", "mcp"]
     }
-  }
+  },
+  "skills": "skills",
+  "contextFileName": "QWEN.md"
 }

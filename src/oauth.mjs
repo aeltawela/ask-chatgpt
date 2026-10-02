@@ -36,11 +36,16 @@ async function writeHostId() {
   try { return (await (await import('node:fs/promises')).readFile(file, 'utf8')).trim(); }
   catch (e) { if (e.code !== 'ENOENT') throw e; const id = `urn:uuid:${randomUUID()}`; await writeFile(file, id, { mode: 0o600, flag: 'wx' }); await chmod(file, 0o600); return id; }
 }
-export async function signIn({ launchBrowser = true, newAccount = false, fetcher = fetch, port = 0 } = {}) {
+export async function signIn({ launchBrowser = true, newAccount = false, accountSubject, fetcher = fetch, port = 0 } = {}) {
   const state = randomText(), nonce = randomText(), verifier = randomText(48), challenge = pkceChallenge(verifier);
   const hostId = await writeHostId();
-  let callbackResolve, callbackReject;
-  const callback = new Promise((resolve, reject) => { callbackResolve = resolve; callbackReject = reject; });
+  const prior = await accounts();
+  const selected = accountSubject ? prior.find(a => a.subject === accountSubject) : prior.find(a => a.auth_method !== 'manual');
+  if (accountSubject && !selected) throw new Error('The selected ChatGPT account is not signed in. Choose an account from `accounts`.');
+  if (selected?.auth_method === 'manual') throw new Error('Manual access tokens cannot be used for browser reauthorization. Start a new browser sign-in instead.');
+  const clientId = (!newAccount && selected?.client_id) || 'dynamic_agent_client';
+  let callbackResolve;
+  const callback = new Promise(resolve => { callbackResolve = resolve; });
   const server = createServer((req, res) => {
     const url = new URL(req.url, 'http://127.0.0.1');
     if (url.pathname !== '/auth/callback') { res.writeHead(404).end('Not found'); return; }
@@ -50,12 +55,17 @@ export async function signIn({ launchBrowser = true, newAccount = false, fetcher
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, '127.0.0.1', resolve); });
   const actualPort = server.address().port, redirect = `http://127.0.0.1:${actualPort}/auth/callback`;
   const url = new URL(`${authBase}/authorize`);
-  const prior = await accounts(); const clientId = (!newAccount && prior[0]?.client_id) || 'dynamic_agent_client';
   const scopes = 'openid profile email offline_access resource.invoke chatgpt.tokens.use.direct';
-  for (const [k, v] of Object.entries({ client_id: clientId, response_type: 'code', redirect_uri: redirect, scope: scopes, resource, state, nonce, code_challenge_method: 'S256', code_challenge: challenge, ext_agent_host_id: hostId, ...(clientId === 'dynamic_agent_client' ? { agent_name_hint: 'chatgpt-as-provider' } : {}) })) url.searchParams.set(k, v);
+  for (const [k, v] of Object.entries({ client_id: clientId, response_type: 'code', redirect_uri: redirect, scope: scopes, resource, state, nonce, code_challenge_method: 'S256', code_challenge: challenge, ext_agent_host_id: hostId, ...(clientId === 'dynamic_agent_client' ? { agent_name_hint: 'chatgpt-as-provider' } : {}), ...(selected?.id_token ? { id_token_hint: selected.id_token } : {}), ...(selected?.email ? { login_hint: selected.email } : {}) })) url.searchParams.set(k, v);
   const opener = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'cmd' : 'xdg-open';
   try {
-    if (launchBrowser) { const child = process.platform === 'win32' ? spawn('cmd', ['/c', 'start', '', url.toString()], { detached: true, stdio: 'ignore' }) : spawn(opener, [url.toString()], { detached: true, stdio: 'ignore' }); child.unref(); }
+    if (launchBrowser) {
+      const child = process.platform === 'win32' ? spawn('cmd', ['/c', 'start', '', url.toString()], { detached: true, stdio: 'ignore' }) : spawn(opener, [url.toString()], { detached: true, stdio: 'ignore' });
+      const browserFailure = () => process.stderr.write(`Could not open a browser. Copy this one-time ChatGPT sign-in link into your browser: ${url}\n`);
+      child.once('error', browserFailure);
+      child.once('exit', code => { if (code !== 0) browserFailure(); });
+      child.unref();
+    }
     else console.log(url.toString());
     let timeout;
     const expired = new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error('Sign-in timed out.')), 5 * 60_000); timeout.unref(); });
@@ -72,9 +82,23 @@ export async function signIn({ launchBrowser = true, newAccount = false, fetcher
     const tokens = await tokenRes.json(); const scopesGranted = (tokens.scope || '').split(' ').filter(Boolean);
     if (!scopesGranted.includes(requiredScope)) throw new Error('ChatGPT plan usage permission was not granted.');
     const identity = await validateIdToken(tokens.id_token, { clientId: issuedId, nonce, fetcher });
-    const account = { subject: identity.sub, email: identity.email || null, client_id: issuedId, ext_agent_host_id: hostId, issuer: identity.iss, id_token: tokens.id_token, access_token: tokens.access_token, refresh_token: tokens.refresh_token, token_type: tokens.token_type, expires_at: Date.now() + tokens.expires_in * 1000, scopes: scopesGranted };
+    if (selected && selected.subject !== identity.sub) throw new Error('The signed-in identity does not match the selected ChatGPT account.');
+    const account = { subject: identity.sub, email: identity.email || null, client_id: issuedId, ext_agent_host_id: hostId, issuer: identity.iss, id_token: tokens.id_token, access_token: tokens.access_token, refresh_token: tokens.refresh_token, token_type: tokens.token_type, expires_at: Date.now() + tokens.expires_in * 1000, scopes: scopesGranted, auth_method: 'oauth' };
     await saveAccount(account); return { subject: account.subject, email: account.email };
   } finally { server.close(); }
+}
+export async function signInWithManualToken(token, { fetcher = fetch, label = null } = {}) {
+  if (typeof token !== 'string' || token.trim().length < 20) throw new Error('The manually entered access token is empty or too short.');
+  const accessToken = token.trim();
+  const response = await fetcher('https://api.openai.com/v1/models', { headers: { authorization: `Bearer ${accessToken}` } });
+  if (!response.ok) throw new Error(`The manually entered token was rejected by the OpenAI models endpoint (${response.status}).`);
+  await response.arrayBuffer();
+  let expiresAt = Number.MAX_SAFE_INTEGER;
+  try { const claims = decode(accessToken.split('.')[1]); if (Number.isFinite(claims.exp)) expiresAt = claims.exp * 1000; } catch {}
+  const fingerprint = createHash('sha256').update(accessToken).digest('hex');
+  const account = { subject: `manual:${fingerprint}`, email: label || null, client_id: null, ext_agent_host_id: await writeHostId(), issuer: 'manual-token', id_token: null, access_token: accessToken, refresh_token: null, token_type: 'Bearer', expires_at: expiresAt, scopes: ['manual-token'], auth_method: 'manual' };
+  await saveAccount(account);
+  return { subject: account.subject, label: account.email, auth_method: 'manual' };
 }
 export async function refreshAccount(account, fetcher = fetch) {
   const body = new URLSearchParams({ grant_type: 'refresh_token', client_id: account.client_id, refresh_token: account.refresh_token, resource });
@@ -101,6 +125,10 @@ async function acquireRefreshLock(key) {
 export async function usableAccount(subject, { fetcher = fetch } = {}) {
   const all = await accounts(); let account = subject ? all.find(a => a.subject === subject) : all[0];
   if (!account) throw new Error('No ChatGPT account is signed in. Run `chatgpt-as-provider login`.');
+  if (account.auth_method === 'manual') {
+    if (account.expires_at <= Date.now()) throw new Error('The manually entered access token has expired. Run `chatgpt-as-provider login --manual-token` again.');
+    return account;
+  }
   if (account.expires_at <= Date.now() + 60_000) {
     const lock = account.subject + account.client_id;
     if (!refreshLocks.has(lock)) refreshLocks.set(lock, (async () => {
@@ -116,4 +144,4 @@ export async function usableAccount(subject, { fetcher = fetch } = {}) {
   }
   return account;
 }
-export async function signOut(subject) { const all = await accounts(); for (const a of all.filter(x => !subject || x.subject === subject)) { try { const body = new URLSearchParams({ token: a.refresh_token, token_type_hint: 'refresh_token' }); await fetch(`${authBase}/oauth/revoke`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body }); } catch {} await removeAccount(a.subject); } }
+export async function signOut(subject) { const all = await accounts(); for (const a of all.filter(x => !subject || x.subject === subject)) { if (a.refresh_token) { try { const body = new URLSearchParams({ token: a.refresh_token, token_type_hint: 'refresh_token' }); await fetch(`${authBase}/oauth/revoke`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body }); } catch {} } await removeAccount(a.subject); } }

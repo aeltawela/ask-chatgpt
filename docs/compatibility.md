@@ -2,13 +2,13 @@
 
 Statuses: **Implemented** means a wrapper or protocol translator exists in this repository. **Mock tested** means automated local tests exercise translation without client sign-in or paid inference. **Live unverified** means this environment did not have the client or an authenticated test account available. Do not interpret implementation or mock tests as end-to-end support.
 
-| Client | Consultation wrapper | Provider protocol | Local status | Live client status |
+| Client | Normal install / consultation wrapper | Provider protocol | Local status | Live client status |
 |---|---|---|---|---|
-| Qwen Code | stdio MCP + `ask-chatgpt` skill | OpenAI Chat Completions gateway | Implemented; mock tested | Live unverified; CLI 0.24.7 present |
-| OpenCode | stdio MCP + skill | OpenAI Chat Completions gateway | Implemented; mock tested | Live unverified; CLI 2.0.22 present |
-| Pi | stdio MCP + skill | OpenAI Chat Completions gateway | Implemented; mock tested | Live unverified; CLI absent |
-| Gemini CLI | stdio MCP + skill | Gemini `generateContent` gateway | Implemented; mock tested | Live unverified |
-| Claude Code | stdio MCP + skill | Anthropic Messages gateway | Implemented; mock tested; plugin manifest strict validation passed | Live unverified; CLI 2.1.183 present; unsupported by Anthropic for non-Claude models |
+| Qwen Code | Native extension + bundled stdio MCP and skills | OpenAI Chat Completions gateway | Manifest and tool contract tested | Live unverified |
+| OpenCode | Git-installed package plugin registers both skills and native tools (v2); native tools (v1) | OpenAI Chat Completions gateway | v1/v2 entrypoints and tool/skill contracts tested | Live unverified |
+| Pi | Git-installed package with native tools and skills | OpenAI Chat Completions gateway | Package manifest and tool contract tested | Live unverified |
+| Gemini CLI | Native extension with bundled stdio MCP and skills | Gemini `generateContent` gateway | Manifest and tool contract tested | Live unverified |
+| Claude Code | Marketplace plugin with bundled skills and stdio MCP | Anthropic Messages gateway | Plugin, marketplace and tool contracts tested | Live unverified; unsupported by Anthropic for non-Claude models |
 
 ## Protocol notes
 

@@ -8,18 +8,33 @@ Use your ChatGPT account from coding agents in two ways: ask ChatGPT for a secon
 
 Node.js 22 or newer. Sign in from an eligible ChatGPT account that grants the plan-usage permission. The OAuth flow does not require an OpenAI API key. `chatgpt-as-provider` uses only documented public OAuth and Responses endpoints.
 
-## Install and sign in
+## Install as a harness plugin and sign in
+
+Install it through the client’s normal extension or plugin manager. Each package includes the shared core, consultation tool, skills where supported, and OAuth-backed MCP tools or native tools. No separate global npm install or hand-copied MCP configuration is needed for consultation mode.
+
+| Harness | Install | Update | Uninstall |
+|---|---|---|---|
+| Qwen Code | `qwen extensions install https://github.com/aeltawela/chatgpt-as-provider` | `qwen extensions update chatgpt-as-provider` | `qwen extensions uninstall chatgpt-as-provider` |
+| OpenCode | `opencode plugin add github:aeltawela/chatgpt-as-provider` | `opencode plugin update chatgpt-as-provider` | `opencode plugin remove chatgpt-as-provider` |
+| Pi | `pi install git:github.com/aeltawela/chatgpt-as-provider@v0.1.2` | `pi update --extensions` | `pi remove git:github.com/aeltawela/chatgpt-as-provider` |
+| Gemini CLI | `gemini extensions install https://github.com/aeltawela/chatgpt-as-provider` | `gemini extensions update chatgpt-as-provider` | `gemini extensions uninstall chatgpt-as-provider` |
+| Claude Code | `claude plugin marketplace add aeltawela/chatgpt-as-provider` then `claude plugin install chatgpt-as-provider@chatgpt-as-provider` | `claude plugin update chatgpt-as-provider@chatgpt-as-provider` | `claude plugin uninstall chatgpt-as-provider@chatgpt-as-provider` |
+
+After restarting the harness when requested, call its `chatgpt_login` tool. It opens the official Sign in with ChatGPT browser link, waits for the localhost callback, checks OAuth state/PKCE/nonce and identity, and encrypts the credentials locally. Use `chatgpt_models` to inspect the account’s model catalog.
+
+Manual token entry is a terminal-only fallback for installations where the browser callback cannot work. From the installed package directory, run `node <plugin-directory>/src/cli.mjs login --manual-token` and paste into its hidden prompt. This accepts a bearer token only after `/v1/models` verifies it; it does not get OAuth identity or refresh guarantees, and the account identifier is a local fingerprint. Do not pass tokens in arguments, environment variables, chat, MCP tool calls, or settings.
+
+Official install references: [Qwen extensions](https://github.com/QwenLM/qwen-code/blob/main/docs/users/extension/introduction.md), [OpenCode plugins](https://opencode.ai/docs/plugins/), [Pi packages](https://pi.dev/docs/latest/packages), [Gemini extensions](https://geminicli.com/docs/extensions/), and [Claude Code plugins](https://code.claude.com/docs/en/plugins).
+
+The browser login opens a loopback callback on `127.0.0.1`, validates PKCE/state/nonce and identity token, then stores encrypted credentials in `~/.config/chatgpt-as-provider` (or `$XDG_CONFIG_HOME/chatgpt-as-provider`). A machine-specific host ID, encryption key and credentials are mode 0600; the data directory is mode 0700. Set `CHATGPT_PROVIDER_HOME` to choose another private path.
+
+## Ask ChatGPT
+
+The client plugin provides this function through its `ask_chatgpt` tool. Install the standalone CLI only if you also want direct terminal use or the manual-token fallback:
 
 ```sh
 npm install --global github:aeltawela/chatgpt-as-provider
-chatgpt-as-provider login
-chatgpt-as-provider accounts
-chatgpt-as-provider models
 ```
-
-The sign-in command opens a loopback callback on `127.0.0.1`, validates PKCE/state/nonce and identity token, then stores encrypted credentials in `~/.config/chatgpt-as-provider` (or `$XDG_CONFIG_HOME/chatgpt-as-provider`). A machine-specific host ID, encryption key and credentials are mode 0600; the data directory is mode 0700. Set `CHATGPT_PROVIDER_HOME` to choose another private path.
-
-## Ask ChatGPT
 
 ```sh
 chatgpt-as-provider ask
@@ -71,7 +86,7 @@ The tests use mock OAuth accounts and mock Responses streams; they never spend C
 
 ## Privacy, security and reporting
 
-See [security and privacy](docs/security-and-privacy.md). Do not file access tokens, refresh tokens, session contents or unredacted prompts in issues. Report suspected security issues privately to the repository owner until a security contact is published.
+See [security and privacy](docs/security-and-privacy.md). [AGENTS.md](AGENTS.md) requires reviewing every staged diff before commit and excluding personal or sensitive data. Do not file access tokens, refresh tokens, session contents or unredacted prompts in issues. Report suspected security issues privately to the repository owner until a security contact is published.
 
 ## License
 

@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "chatgpt": {
-      "command": "chatgpt-as-provider",
-      "args": ["mcp"]
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/src/cli.mjs", "mcp"]
     }
   }
 }

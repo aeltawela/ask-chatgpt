@@ -1,0 +1,17 @@
+{
+  "name": "chatgpt-as-provider",
+  "owner": { "name": "aeltawela" },
+  "metadata": {
+    "description": "Ask ChatGPT or use it as a provider through the documented OAuth flow.",
+    "version": "0.1.2"
+  },
+  "plugins": [
+    {
+      "name": "chatgpt-as-provider",
+      "source": { "source": "github", "repo": "aeltawela/chatgpt-as-provider" },
+      "description": "ChatGPT OAuth consultation tool, skills and provider gateway.",
+      "version": "0.1.2",
+      "strict": true
+    }
+  ]
+}

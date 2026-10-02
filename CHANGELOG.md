@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2
+
+- Package the shared core through each harness's normal extension/plugin manager.
+- Add in-plugin browser sign-in and terminal-only manual access-token entry.
+- Add explicit agent instructions to keep personal and sensitive information out of commits.
+- Run CI dependency installation before tests and checks.
+
 ## 0.1.1
 
 - Fix automatic reasoning classification request shape and release its OAuth sign-in timeout after callback.

@@ -1,5 +1,13 @@
 # Pi
 
-Add `skills/ask-chatgpt` to Pi's skill search path. For a native Pi tool, install the adapter with `pi -e /path/to/chatgpt-as-provider/integrations/pi/ask-chatgpt.ts`. It calls the shared CLI through argument-safe process spawning and leaves Pi in charge of all other tools. Sign in with `chatgpt-as-provider login`.
+Install the encapsulated package using Pi's package manager:
 
-For provider mode, Pi's OpenAI-compatible model configuration can target `http://127.0.0.1:8765/v1` while `chatgpt-as-provider serve --protocol openai` is running. Supply the local gateway token in Pi's private environment/credential mechanism; never put it in a checked-in `models.json`. Add a model id returned by `chatgpt-as-provider models` and explicitly select it. Restore the saved Pi configuration to uninstall.
+```sh
+pi install git:github.com/aeltawela/chatgpt-as-provider@v0.1.2
+```
+
+This registers the native tools and both skills with Pi and includes the shared core. Use `chatgpt_login` once to open the official browser login. Update with `pi update --extensions` and remove with `pi remove git:github.com/aeltawela/chatgpt-as-provider`.
+
+If the browser callback is unavailable, use the hidden-input fallback from the installed package directory: `node <package-directory>/src/cli.mjs login --manual-token`. Never put a token in chat, shell history, command arguments, settings, or a tool call.
+
+For provider mode, Pi's OpenAI-compatible model configuration can target `http://127.0.0.1:8765/v1` while `node <package-directory>/src/cli.mjs serve --protocol openai` is running. Supply the local gateway token in Pi's private environment/credential mechanism; never put it in a checked-in `models.json`. Add a model id returned by `chatgpt_models` and explicitly select it. Restore the saved Pi configuration to uninstall.
