@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "chatgpt": {
+      "command": "chatgpt-as-provider",
+      "args": ["mcp"]
+    }
+  }
+}

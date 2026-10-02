@@ -1,0 +1,7 @@
+{
+  "name": "chatgpt-as-provider",
+  "description": "Ask ChatGPT through a local stdio MCP server.",
+  "version": "0.1.0",
+  "author": { "name": "aeltawela" },
+  "license": "MIT"
+}

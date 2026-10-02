@@ -1,0 +1,11 @@
+{
+  "name": "chatgpt-as-provider",
+  "version": "0.1.0",
+  "description": "Ask ChatGPT through the documented ChatGPT OAuth flow.",
+  "mcpServers": {
+    "chatgpt": {
+      "command": "chatgpt-as-provider",
+      "args": ["mcp"]
+    }
+  }
+}

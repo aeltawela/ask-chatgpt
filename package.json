@@ -1,0 +1,17 @@
+{
+  "name": "chatgpt-as-provider",
+  "version": "0.1.0",
+  "description": "Use ChatGPT OAuth from agent clients as a consultation tool or model provider.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "bin": { "chatgpt-as-provider": "./src/cli.mjs" },
+  "scripts": {
+    "start": "node src/cli.mjs",
+    "test": "node --test --test-concurrency=6 tests/*.test.mjs",
+    "check": "node --check src/cli.mjs && node --check src/core.mjs && node --check src/oauth.mjs && node --check src/gateway.mjs && node --check src/mcp.mjs && node --check src/protocols.mjs && node --check src/store.mjs"
+  },
+  "keywords": ["chatgpt", "oauth", "mcp", "agent-skills", "qwen", "opencode", "pi", "gemini-cli", "claude-code"],
+  "author": "aeltawela",
+  "repository": { "type": "git", "url": "https://github.com/aeltawela/chatgpt-as-provider.git" }
+}
