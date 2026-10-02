@@ -4,11 +4,11 @@ Statuses: **Implemented** means a wrapper or protocol translator exists in this 
 
 | Client | Consultation wrapper | Provider protocol | Local status | Live client status |
 |---|---|---|---|---|
-| Qwen Code | stdio MCP + `ask-chatgpt` skill | OpenAI Chat Completions gateway | Implemented; mock tested | Live unverified |
-| OpenCode | stdio MCP + skill | OpenAI Chat Completions gateway | Implemented; mock tested | Live unverified |
-| Pi | stdio MCP + skill | OpenAI Chat Completions gateway | Implemented; mock tested | Live unverified |
+| Qwen Code | stdio MCP + `ask-chatgpt` skill | OpenAI Chat Completions gateway | Implemented; mock tested | Live unverified; CLI 0.24.7 present |
+| OpenCode | stdio MCP + skill | OpenAI Chat Completions gateway | Implemented; mock tested | Live unverified; CLI 2.0.22 present |
+| Pi | stdio MCP + skill | OpenAI Chat Completions gateway | Implemented; mock tested | Live unverified; CLI absent |
 | Gemini CLI | stdio MCP + skill | Gemini `generateContent` gateway | Implemented; mock tested | Live unverified |
-| Claude Code | stdio MCP + skill | Anthropic Messages gateway | Implemented; mock tested | Live unverified; unsupported by Anthropic for non-Claude models |
+| Claude Code | stdio MCP + skill | Anthropic Messages gateway | Implemented; mock tested; plugin manifest strict validation passed | Live unverified; CLI 2.1.183 present; unsupported by Anthropic for non-Claude models |
 
 ## Protocol notes
 

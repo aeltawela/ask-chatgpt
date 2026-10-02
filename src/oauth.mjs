@@ -57,7 +57,10 @@ export async function signIn({ launchBrowser = true, newAccount = false, fetcher
   try {
     if (launchBrowser) { const child = process.platform === 'win32' ? spawn('cmd', ['/c', 'start', '', url.toString()], { detached: true, stdio: 'ignore' }) : spawn(opener, [url.toString()], { detached: true, stdio: 'ignore' }); child.unref(); }
     else console.log(url.toString());
-    const params = await Promise.race([callback, new Promise((_, reject) => setTimeout(() => reject(new Error('Sign-in timed out.')), 5 * 60_000))]);
+    let timeout;
+    const expired = new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error('Sign-in timed out.')), 5 * 60_000); timeout.unref(); });
+    const params = await Promise.race([callback, expired]);
+    clearTimeout(timeout);
     if (params.get('state') !== state) throw new Error('OAuth state did not match.');
     if (params.get('error')) throw new Error(params.get('error_description') || params.get('error'));
     const code = params.get('code'), issuedId = params.get('client_id') || clientId;

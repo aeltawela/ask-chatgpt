@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+- Fix automatic reasoning classification request shape and release its OAuth sign-in timeout after callback.
+
 ## 0.1.0
 
 - Initial shared OAuth core, CLI, stdio MCP consultation interface and opt-in encrypted local sessions.

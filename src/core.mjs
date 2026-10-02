@@ -42,7 +42,7 @@ export async function listModels({ subject, fetcher = defaultFetch } = {}) {
   return models;
 }
 async function classify(question, model, account, fetcher) {
-  const response = await requestResponse({ account, model, input: [{ role: 'user', content: [{ type: 'input_text', text: `Choose the minimum useful reasoning effort for this request. Return exactly one lowercase word: low, medium, or high. Request: ${question.slice(0, 5000)}` }] }, { instructions: 'Classify task difficulty only. Do not answer the request.' }], reasoning: { effort: 'low' }, fetcher });
+  const response = await requestResponse({ account, model, input: [{ role: 'user', content: [{ type: 'input_text', text: `Choose the minimum useful reasoning effort for this request. Return exactly one lowercase word: low, medium, or high. Request: ${question.slice(0, 5000)}` }] }], instructions: 'Classify task difficulty only. Do not answer the request.', reasoning: { effort: 'low' }, fetcher });
   const effort = outputText(response).trim().toLowerCase().match(/\b(low|medium|high)\b/)?.[1];
   return effort || 'medium';
 }

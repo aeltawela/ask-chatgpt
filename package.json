@@ -1,6 +1,6 @@
 {
   "name": "chatgpt-as-provider",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Use ChatGPT OAuth from agent clients as a consultation tool or model provider.",
   "type": "module",
   "license": "MIT",
