@@ -19,3 +19,4 @@
 16. Luna from the authenticated catalog is the default model. Astra is selected only for an explicitly highly difficult task or an explicit user model choice; high reasoning alone must not escalate. If Luna is unavailable, report that clearly instead of silently choosing Astra.
 17. Preserve streamed output items, text, citations and tool calls when the completion event omits them. Require upstream completion and never retry an uncertain outcome.
 18. Provide a direct Qwen consultation command that invokes the MCP tool without depending on the failing extension Skill lookup.
+19. Automated secret scanning must run on both push and pull-request events with the built-in read-only GitHub token, without posting comments.

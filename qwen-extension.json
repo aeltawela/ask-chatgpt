@@ -13,5 +13,5 @@
   },
   "skills": "skills",
   "contextFileName": "QWEN.md",
-  "commands": "integrations/qwen/commands"
+  "commands": "commands"
 }

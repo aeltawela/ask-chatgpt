@@ -88,8 +88,10 @@ The tests use mock OAuth accounts and mock Responses streams; they never spend C
 
 See [security and privacy](docs/security-and-privacy.md). [AGENTS.md](AGENTS.md) requires reviewing every staged diff before commit and excluding personal or sensitive data. Do not file access tokens, refresh tokens, session contents or unredacted prompts in issues. Report suspected security issues privately to the repository owner until a security contact is published.
 
+## Model selection
+
+Model selection defaults to the available Luna model. Astra is selected only for an explicitly highly difficult task (or an explicit model choice); high reasoning effort alone keeps Luna. When the calling agent does not select effort, a small Luna classification request chooses effort and difficulty. Malformed classifications never escalate to Astra. If the required family is absent, select an available model explicitly. Results report `model`, `reasoning`, `difficulty` and `classified`. CLI users can set `--caller-effort low` and `--task-difficulty routine`; MCP/native tools use `caller_effort` and `task_difficulty`.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
-Model selection defaults to the available Luna model. Astra is selected only for an explicitly highly difficult task (or an explicit model choice); high reasoning effort alone keeps Luna. When the calling agent does not select effort, a small Luna classification request chooses effort and difficulty. Malformed classifications never escalate to Astra. If the required family is absent, select an available model explicitly. Results report `model`, `reasoning`, `difficulty` and `classified`. CLI users can set `--caller-effort low` and `--task-difficulty routine`; MCP/native tools use `caller_effort` and `task_difficulty`.

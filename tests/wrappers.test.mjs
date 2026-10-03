@@ -43,8 +43,8 @@ test('each harness uses its normal package installer and the package carries its
   assert.ok(pkg.pi.extensions.includes('./integrations/pi/ask-chatgpt.ts')); assert.ok(pkg.pi.skills.includes('./skills'));
   const qwen=JSON.parse(await readFile(new URL('../qwen-extension.json',import.meta.url),'utf8'));
   const gemini=JSON.parse(await readFile(new URL('../gemini-extension.json',import.meta.url),'utf8'));
-  assert.equal(qwen.commands, 'integrations/qwen/commands');
-  const command = await readFile(new URL('../integrations/qwen/commands/chatgpt-ask.md', import.meta.url), 'utf8');
+  assert.equal(qwen.commands, 'commands');
+  const command = await readFile(new URL('../commands/chatgpt-ask.md', import.meta.url), 'utf8');
   assert.match(command, /\{\{args\}\}/); assert.match(command, /Do not invoke the Skill tool/);
   assert.match(qwen.mcpServers.chatgpt.args[0],/\$\{extensionPath\}.*src\/cli\.mjs/);
   assert.match(gemini.mcpServers.chatgpt.args[0],/\$\{extensionPath\}.*src\/cli\.mjs/);
