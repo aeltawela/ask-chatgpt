@@ -10,7 +10,7 @@ const tools = [
   { name: 'ask_chatgpt', description: 'Ask ChatGPT a question. Conversations are temporary unless persist=true.', inputSchema: { type: 'object', properties: {
     question: { type: 'string' }, account_subject: { type: 'string' }, history: { type: 'array', items: { type: 'object', properties: { role: { type: 'string' }, content: {} }, required: ['role', 'content'] } },
     attachments: { type: 'array', items: { type: 'object', properties: { type: { type: 'string', enum: ['input_image', 'input_file'] }, image_url: { type: 'string' }, file_id: { type: 'string' }, file_data: { type: 'string' }, filename: { type: 'string' } }, required: ['type'] } },
-    conversation_id: { type: 'string' }, persist: { type: 'boolean' }, model: { type: 'string' }, reasoning: { type: 'string', enum: ['auto', 'low', 'medium', 'high'] }, caller_effort: { type: 'string', enum: ['low', 'medium', 'high'] },
+    conversation_id: { type: 'string' }, persist: { type: 'boolean' }, model: { type: 'string' }, reasoning: { type: 'string', enum: ['auto', 'low', 'medium', 'high'] }, caller_effort: { type: 'string', enum: ['low', 'medium', 'high'] }, task_difficulty: { type: 'string', enum: ['routine', 'difficult', 'highly_difficult'] },
     web_search: { type: 'boolean' }, tools: { type: 'array', items: { type: 'object' } }, features: { type: 'array', items: { type: 'string' } }, instructions: { type: 'string' }, text: { type: 'object' }
   }, required: ['question'] } },
   { name: 'chatgpt_models', description: 'List models visible to the selected signed-in ChatGPT account.', inputSchema: { type: 'object', properties: { account_subject: { type: 'string' } } } },
@@ -34,7 +34,7 @@ export async function dispatchMcp(message) {
       case 'chatgpt_login': value = { signed_in: true, ...await signIn({ launchBrowser: true, newAccount: a.new_account === true, accountSubject: a.account_subject }) }; break;
       case 'chatgpt_logout': await signOut(a.account_subject); value = { signed_out: true, local_credentials_removed: true }; break;
       case 'chatgpt_accounts': value = await availableAccounts(); break;
-      case 'ask_chatgpt': value = await ask({ question: a.attachments?.length ? [{ type: 'input_text', text: a.question }, ...a.attachments] : a.question, history: a.history, subject: a.account_subject, sessionId: a.conversation_id, persist: a.persist === true, model: a.model, reasoning: a.reasoning || 'auto', callerEffort: a.caller_effort, webSearch: a.web_search === true, tools: a.tools || [], instructions: a.instructions, text: a.text, features: a.features || [] }); break;
+      case 'ask_chatgpt': value = await ask({ question: a.attachments?.length ? [{ type: 'input_text', text: a.question }, ...a.attachments] : a.question, history: a.history, subject: a.account_subject, sessionId: a.conversation_id, persist: a.persist === true, model: a.model, reasoning: a.reasoning || 'auto', callerEffort: a.caller_effort, taskDifficulty: a.task_difficulty, webSearch: a.web_search === true, tools: a.tools || [], instructions: a.instructions, text: a.text, features: a.features || [] }); break;
       case 'chatgpt_models': value = await listModels({ subject: a.account_subject }); break;
       case 'chatgpt_saved_sessions': value = await getSavedSessions({ subject: a.account_subject }); break;
       case 'chatgpt_delete_session': value = { deleted: await deleteSavedSession(a.session_id, { subject: a.account_subject }) }; break;

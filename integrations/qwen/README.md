@@ -10,6 +10,18 @@ Restart Qwen and call the plugin's `chatgpt_login` tool once. It opens the offic
 
 If the browser callback is unavailable, use the local hidden-input fallback from the installed extension directory: `node <extension-directory>/src/cli.mjs login --manual-token`. Never put a token in chat, shell history, command arguments, settings, or a tool call.
 
+## Ask ChatGPT
+
+After updating and restarting Qwen, use:
+
+```text
+/chatgpt-ask What can you do for me?
+```
+
+This packaged command calls MCP directly. Some Qwen skill invocations resolve the extension's qualified skill to the bare `ask-chatgpt` name and fail with “Skill not found”; `/chatgpt-ask` bypasses that lookup. Both skills remain bundled. Do not claim the bare skill name is registered.
+
+Luna is the default even when Astra is first in the account catalog. The calling agent selects reasoning effort; high effort alone keeps Luna. Astra is reserved for `task_difficulty: highly_difficult` or an explicit model choice. If the requested family is unavailable, the plugin reports an error. Model IDs come from the signed-in catalog, not hard-coded assumptions about model versions.
+
 ## Provider
 
 Qwen's custom OpenAI-compatible route can use the OpenAI gateway:

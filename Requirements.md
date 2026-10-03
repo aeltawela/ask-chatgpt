@@ -15,3 +15,7 @@
 13. Root agent instructions require reviewing staged changes before every commit and excluding personal or sensitive information, including credentials, identity/account details, private host/network values, private configuration, and private conversation content. Automated secret scanning remains enabled in CI.
 14. Installation guides provide the standard install, sign-in, diagnostics, provider setup, update, and uninstall commands for every supported harness, while preserving unrelated user settings and requiring explicit provider selection.
 15. Harness-specific MCP configuration must not be auto-discovered by another client with unresolved variables; Qwen's extension install must register only its native `${extensionPath}` server, and Claude's server must be declared inside the Claude plugin manifest.
+
+16. Luna from the authenticated catalog is the default model. Astra is selected only for an explicitly highly difficult task or an explicit user model choice; high reasoning alone must not escalate. If Luna is unavailable, report that clearly instead of silently choosing Astra.
+17. Preserve streamed output items, text, citations and tool calls when the completion event omits them. Require upstream completion and never retry an uncertain outcome.
+18. Provide a direct Qwen consultation command that invokes the MCP tool without depending on the failing extension Skill lookup.

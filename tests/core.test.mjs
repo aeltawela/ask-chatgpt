@@ -57,4 +57,56 @@ test('simultaneous requests serialize a rotating refresh token', async () => {
   const [a, b] = await Promise.all([import('../src/oauth.mjs').then(m => m.usableAccount('refresh-test', { fetcher })), import('../src/oauth.mjs').then(m => m.usableAccount('refresh-test', { fetcher }))]);
   assert.equal(count, 1); assert.equal(a.access_token, 'fresh'); assert.equal(b.access_token, 'fresh');
 });
+const catalog = [{ id: 'gpt-test-astra', default: true }, { id: 'gpt-test-luna' }];
+test('Luna wins over catalog order/default; only highly difficult or explicit model selects Astra', async () => {
+  assert.equal(core.selectModel(catalog), 'gpt-test-luna');
+  assert.equal(core.selectModel(catalog, { taskDifficulty: 'difficult' }), 'gpt-test-luna');
+  assert.equal(core.selectModel(catalog, { taskDifficulty: 'highly_difficult' }), 'gpt-test-astra');
+  assert.equal(core.selectModel(catalog, { model: 'explicit-model' }), 'explicit-model');
+  assert.throws(() => core.selectModel([catalog[0]]), /Luna is unavailable/);
+});
+function catalogFetcher(answers, bodies) {
+  return async (url, options = {}) => {
+    if (url.endsWith('/models')) return Response.json({ models: catalog.map(m => ({ slug: m.id, visibility: 'list', default: m.default })) });
+    bodies.push(JSON.parse(options.body)); return stream(answers.shift());
+  };
+}
+const sparse = (text = 'streamed answer') => [
+  { type: 'response.output_item.added', output_index: 0, item: { type: 'message', role: 'assistant', content: [] } },
+  { type: 'response.content_part.added', output_index: 0, content_index: 0, part: { type: 'output_text', text: '', annotations: [] } },
+  { type: 'response.output_text.delta', output_index: 0, content_index: 0, delta: text },
+  { type: 'response.output_text.done', output_index: 0, content_index: 0, text },
+  { type: 'response.output_text.annotation.added', output_index: 0, content_index: 0, annotation_index: 0, annotation: { type: 'url_citation', title: 'Synthetic source', url: 'https://example.invalid/source' } },
+  { type: 'response.completed', response: { id: 'synthetic-response', output: [], usage: { output_tokens: 2 } } }
+];
+test('sparse completion preserves streamed answer, citation, usage and continuation context', async () => {
+  const bodies = []; const fetcher = async (_url, options) => { bodies.push(JSON.parse(options.body)); return stream(sparse()); };
+  const result = await core.ask({ question: 'synthetic question', model: 'test-luna', reasoning: 'low', subject: 'sub-test', fetcher });
+  assert.equal(result.text, 'streamed answer'); assert.equal(result.usage.output_tokens, 2);
+  assert.deepEqual(result.citations, [{ title: 'Synthetic source', url: 'https://example.invalid/source' }]);
+  await core.ask({ question: 'next', sessionId: result.conversationId, model: 'test-luna', reasoning: 'low', subject: 'sub-test', fetcher });
+  assert.equal(bodies[1].input[1].content[0].text, 'streamed answer');
+});
+test('high effort alone keeps Luna and caller-selected difficulty gates Astra', async () => {
+  for (const [difficulty, expected] of [['routine', 'gpt-test-luna'], ['highly_difficult', 'gpt-test-astra']]) {
+    const bodies = [];
+    const result = await core.ask({ question: 'synthetic', subject: 'sub-test', callerEffort: 'high', taskDifficulty: difficulty, fetcher: catalogFetcher([sparse()], bodies) });
+    assert.equal(result.model, expected); assert.equal(result.reasoning, 'high'); assert.equal(result.classified, false); assert.equal(bodies.length, 1);
+  }
+});
+test('classifier runs on Luna, recovers sparse text and malformed classification cannot escalate', async () => {
+  for (const [classification, model] of [['routine low', 'gpt-test-luna'], ['highly_difficult high', 'gpt-test-astra'], ['not highly_difficult high actually', 'gpt-test-luna']]) {
+    const bodies = [];
+    const result = await core.ask({ question: 'synthetic', subject: 'sub-test', fetcher: catalogFetcher([sparse(classification), sparse()], bodies) });
+    assert.equal(bodies[0].model, 'gpt-test-luna'); assert.equal(result.model, model); assert.equal(result.classified, true);
+  }
+});
+test('tool calls survive sparse completion and a truly empty completion fails without retry', async () => {
+  const tool = { type: 'function_call', call_id: 'synthetic-call', name: 'test_tool', arguments: '{"value":1}' };
+  const result = await core.ask({ question: 'synthetic', subject: 'sub-test', model: 'test-luna', reasoning: 'low', fetcher: async () => stream([{ type: 'response.output_item.done', output_index: 0, item: tool }, { type: 'response.completed', response: { output: [] } }]) });
+  assert.deepEqual(result.toolCalls, [{ id: 'synthetic-call', name: 'test_tool', arguments: '{"value":1}' }]);
+  let count = 0;
+  await assert.rejects(core.ask({ question: 'synthetic', subject: 'sub-test', model: 'test-luna', reasoning: 'low', fetcher: async () => { count++; return stream([{ type: 'response.completed', response: { output: [] } }]); } }), /without usable answer/);
+  assert.equal(count, 1);
+});
 test.after(async () => rm(home, { recursive: true, force: true }));

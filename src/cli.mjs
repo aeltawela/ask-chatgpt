@@ -50,7 +50,7 @@ async function main() {
   if (command === 'ask') {
     const question = await inputQuestion(flags); const attachments = [];
     for (const file of String(flags.file || '').split(',').filter(Boolean)) { const bytes = await readFile(file); const ext = file.split('.').pop().toLowerCase(); if (['png','jpg','jpeg','webp','gif'].includes(ext)) attachments.push({ type: 'input_image', image_url: `data:${ext === 'jpg' ? 'image/jpeg' : `image/${ext}`};base64,${bytes.toString('base64')}` }); else attachments.push({ type: 'input_file', filename: file.split('/').pop(), file_data: `data:application/octet-stream;base64,${bytes.toString('base64')}` }); }
-    const result = await ask({ question: attachments.length ? [{ type: 'input_text', text: question }, ...attachments] : question, subject: flags.account, model: flags.model, reasoning: flags.reasoning || 'auto', callerEffort: flags['caller-effort'], webSearch: Boolean(flags['web-search']), persist: Boolean(flags.persist), sessionId: flags.session }); print(flags.json ? result : result.text); return;
+    const result = await ask({ question: attachments.length ? [{ type: 'input_text', text: question }, ...attachments] : question, subject: flags.account, model: flags.model, reasoning: flags.reasoning || 'auto', callerEffort: flags['caller-effort'], taskDifficulty: flags['task-difficulty'], webSearch: Boolean(flags['web-search']), persist: Boolean(flags.persist), sessionId: flags.session }); print(flags.json ? result : result.text); return;
   }
   if (command === 'saved') { print(await getSavedSessions({ subject: flags.account })); return; }
   if (command === 'delete') { print({ deleted: await deleteSavedSession(flags.session || flags._?.[0], { subject: flags.account }) }); return; }

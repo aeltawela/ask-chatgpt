@@ -25,14 +25,14 @@ const askTool = {
   description: 'Ask ChatGPT for a focused second opinion. Conversation is temporary unless persist is true.',
   input: { type: 'object', properties: {
     question: { type: 'string' }, account_subject: { type: 'string' }, conversation_id: { type: 'string' }, persist: { type: 'boolean' },
-    model: { type: 'string' }, reasoning: { type: 'string', enum: ['auto', 'low', 'medium', 'high'] }, caller_effort: { type: 'string', enum: ['low', 'medium', 'high'] },
+    model: { type: 'string' }, reasoning: { type: 'string', enum: ['auto', 'low', 'medium', 'high'] }, caller_effort: { type: 'string', enum: ['low', 'medium', 'high'] }, task_difficulty: { type: 'string', enum: ['routine', 'difficult', 'highly_difficult'] },
     web_search: { type: 'boolean' }, tools: { type: 'array', items: { type: 'object' } }, features: { type: 'array', items: { type: 'string' } },
     instructions: { type: 'string' }, text: { type: 'object' }, history: { type: 'array', items: { type: 'object', properties: { role: { type: 'string' }, content: {} }, required: ['role', 'content'] } },
     attachments: { type: 'array', items: { type: 'object', properties: { type: { type: 'string', enum: ['input_image', 'input_file'] }, image_url: { type: 'string' }, file_id: { type: 'string' }, file_data: { type: 'string' }, filename: { type: 'string' } }, required: ['type'] } }
   }, required: ['question'], additionalProperties: false },
   async run(args = {}, options = {}) {
     const question = args.attachments?.length ? [{ type: 'input_text', text: args.question }, ...args.attachments] : args.question;
-    return JSON.stringify(await ask({ question, history: args.history, subject: args.account_subject, sessionId: args.conversation_id, persist: args.persist === true, model: args.model, reasoning: args.reasoning || 'auto', callerEffort: args.caller_effort, webSearch: args.web_search === true, tools: args.tools || [], instructions: args.instructions, text: args.text, features: args.features || [], signal: options.signal, onEvent: options.onEvent }));
+    return JSON.stringify(await ask({ question, history: args.history, subject: args.account_subject, sessionId: args.conversation_id, persist: args.persist === true, model: args.model, reasoning: args.reasoning || 'auto', callerEffort: args.caller_effort, taskDifficulty: args.task_difficulty, webSearch: args.web_search === true, tools: args.tools || [], instructions: args.instructions, text: args.text, features: args.features || [], signal: options.signal, onEvent: options.onEvent }));
   }
 };
 
@@ -63,7 +63,7 @@ export const ChatGPTPlugin = async () => ({
     chatgpt_logout: { description: logoutTool.description, args: z.object({ account_subject: z.string().optional() }), async execute(args) { return logoutTool.run(args); } },
     chatgpt_accounts: { description: accountsTool.description, args: z.object({}), async execute() { return accountsTool.run(); } },
     chatgpt_models: { description: modelsTool.description, args: z.object({ account_subject: z.string().optional() }), async execute(args) { return modelsTool.run(args); } },
-    ask_chatgpt: { description: askTool.description, args: z.object({ question: z.string(), account_subject: z.string().optional(), conversation_id: z.string().optional(), persist: z.boolean().optional(), model: z.string().optional(), reasoning: z.enum(['auto', 'low', 'medium', 'high']).optional(), caller_effort: z.enum(['low', 'medium', 'high']).optional(), web_search: z.boolean().optional(), tools: z.array(z.record(z.string(), z.unknown())).optional(), features: z.array(z.string()).optional(), instructions: z.string().optional(), text: z.record(z.string(), z.unknown()).optional(), history: z.array(z.object({ role: z.string(), content: z.unknown() })).optional(), attachments: z.array(z.object({ type: z.enum(['input_image', 'input_file']), image_url: z.string().optional(), file_id: z.string().optional(), file_data: z.string().optional(), filename: z.string().optional() })).optional() }), async execute(args) { return askTool.run(args); } }
+    ask_chatgpt: { description: askTool.description, args: z.object({ question: z.string(), account_subject: z.string().optional(), conversation_id: z.string().optional(), persist: z.boolean().optional(), model: z.string().optional(), reasoning: z.enum(['auto', 'low', 'medium', 'high']).optional(), caller_effort: z.enum(['low', 'medium', 'high']).optional(), task_difficulty: z.enum(['routine', 'difficult', 'highly_difficult']).optional(), web_search: z.boolean().optional(), tools: z.array(z.record(z.string(), z.unknown())).optional(), features: z.array(z.string()).optional(), instructions: z.string().optional(), text: z.record(z.string(), z.unknown()).optional(), history: z.array(z.object({ role: z.string(), content: z.unknown() })).optional(), attachments: z.array(z.object({ type: z.enum(['input_image', 'input_file']), image_url: z.string().optional(), file_id: z.string().optional(), file_data: z.string().optional(), filename: z.string().optional() })).optional() }), async execute(args) { return askTool.run(args); } }
   }
 });
 

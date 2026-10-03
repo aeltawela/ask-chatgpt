@@ -39,6 +39,7 @@ export default function (pi) {
       model: Type.Optional(Type.String()),
       reasoning: Type.Optional(StringEnum(['auto', 'low', 'medium', 'high'])),
       caller_effort: Type.Optional(Type.Union([Type.Literal('low'), Type.Literal('medium'), Type.Literal('high')])),
+      task_difficulty: Type.Optional(Type.Union([Type.Literal('routine'), Type.Literal('difficult'), Type.Literal('highly_difficult')])),
       web_search: Type.Optional(Type.Boolean()),
       tools: Type.Optional(Type.Array(Type.Record(Type.String(), Type.Unknown()))),
       features: Type.Optional(Type.Array(Type.String())),
@@ -53,7 +54,7 @@ export default function (pi) {
     async execute(_id, params, signal, onUpdate) {
       try {
         const question = params.attachments?.length ? [{ type: 'input_text', text: params.question }, ...params.attachments] : params.question;
-        const result = await ask({ question, history: params.history, subject: params.account_subject, sessionId: params.conversation_id, persist: params.persist === true, model: params.model, reasoning: params.reasoning || 'auto', callerEffort: params.caller_effort, webSearch: params.web_search === true, tools: params.tools || [], instructions: params.instructions, text: params.text, features: params.features || [], signal, onEvent: event => { if (event.type === 'text_delta') onUpdate?.({ content: [{ type: 'text', text: event.text }], details: { partial: true } }); } });
+        const result = await ask({ question, history: params.history, subject: params.account_subject, sessionId: params.conversation_id, persist: params.persist === true, model: params.model, reasoning: params.reasoning || 'auto', callerEffort: params.caller_effort, taskDifficulty: params.task_difficulty, webSearch: params.web_search === true, tools: params.tools || [], instructions: params.instructions, text: params.text, features: params.features || [], signal, onEvent: event => { if (event.type === 'text_delta') onUpdate?.({ content: [{ type: 'text', text: event.text }], details: { partial: true } }); } });
         return { content: [{ type: 'text', text: JSON.stringify(result) }], details: { conversationId: result.conversationId, model: result.model, reasoning: result.reasoning, usage: result.usage, citations: result.citations, toolCalls: result.toolCalls } };
       }
       catch (error) { return { content: [{ type: 'text', text: `ChatGPT consultation failed: ${error.message}` }], details: {}, isError: true }; }

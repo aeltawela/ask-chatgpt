@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.4
+
+- Preserve streamed text, citations and tool calls when the completion event omits output; reject truly empty completions without replay.
+- Default to the account's Luna model; reserve Astra for highly difficult tasks or an explicit model choice. Keep reasoning effort separate from model escalation.
+- Add Qwen's packaged `/chatgpt-ask` command to bypass bare-name Skill lookup failures.
+- Isolate wrapper tests from locally signed-in accounts and add sparse-stream/model-policy regressions.
+
 ## 0.1.3
 
 - Keep Claude Code MCP configuration in its plugin manifest so Qwen does not load Claude-only path variables or start an unrelated MCP OAuth flow.

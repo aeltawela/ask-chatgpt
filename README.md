@@ -16,7 +16,7 @@ Install it through the client’s normal extension or plugin manager. Each packa
 |---|---|---|---|
 | Qwen Code | `qwen extensions install https://github.com/aeltawela/chatgpt-as-provider` | `qwen extensions update chatgpt-as-provider` | `qwen extensions uninstall chatgpt-as-provider` |
 | OpenCode | `opencode plugin add github:aeltawela/chatgpt-as-provider` | `opencode plugin update chatgpt-as-provider` | `opencode plugin remove chatgpt-as-provider` |
-| Pi | `pi install git:github.com/aeltawela/chatgpt-as-provider@v0.1.3` | `pi update --extensions` | `pi remove git:github.com/aeltawela/chatgpt-as-provider` |
+| Pi | `pi install git:github.com/aeltawela/chatgpt-as-provider@v0.1.4` | `pi update --extensions` | `pi remove git:github.com/aeltawela/chatgpt-as-provider` |
 | Gemini CLI | `gemini extensions install https://github.com/aeltawela/chatgpt-as-provider` | `gemini extensions update chatgpt-as-provider` | `gemini extensions uninstall chatgpt-as-provider` |
 | Claude Code | `claude plugin marketplace add aeltawela/chatgpt-as-provider` then `claude plugin install chatgpt-as-provider@chatgpt-as-provider` | `claude plugin update chatgpt-as-provider@chatgpt-as-provider` | `claude plugin uninstall chatgpt-as-provider@chatgpt-as-provider` |
 
@@ -91,3 +91,5 @@ See [security and privacy](docs/security-and-privacy.md). [AGENTS.md](AGENTS.md)
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+Model selection defaults to the available Luna model. Astra is selected only for an explicitly highly difficult task (or an explicit model choice); high reasoning effort alone keeps Luna. When the calling agent does not select effort, a small Luna classification request chooses effort and difficulty. Malformed classifications never escalate to Astra. If the required family is absent, select an available model explicitly. Results report `model`, `reasoning`, `difficulty` and `classified`. CLI users can set `--caller-effort low` and `--task-difficulty routine`; MCP/native tools use `caller_effort` and `task_difficulty`.
