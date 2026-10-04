@@ -1,0 +1,18 @@
+{
+  "name": "ask-chatgpt",
+  "description": "Ask ChatGPT through a local stdio MCP server.",
+  "version": "0.1.12",
+  "author": {
+    "name": "aeltawela"
+  },
+  "license": "GPL-3.0-or-later",
+  "mcpServers": {
+    "chatgpt": {
+      "command": "node",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/src/cli.mjs",
+        "mcp"
+      ]
+    }
+  }
+}

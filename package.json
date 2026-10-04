@@ -1,0 +1,68 @@
+{
+  "name": "ask-chatgpt",
+  "version": "0.1.12",
+  "description": "Encapsulated ChatGPT OAuth plugin for coding agents: consultation tools, skills and provider gateway.",
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "ask-chatgpt": "./src/cli.mjs"
+  },
+  "main": "./integrations/opencode/plugin.mjs",
+  "exports": "./integrations/opencode/plugin.mjs",
+  "pi": {
+    "extensions": [
+      "./integrations/pi/ask-chatgpt.ts"
+    ],
+    "skills": [
+      "./skills"
+    ]
+  },
+  "scripts": {
+    "start": "node src/cli.mjs",
+    "test": "node --test --test-concurrency=6 tests/*.test.mjs",
+    "check": "node --check src/cli.mjs && node --check src/core.mjs && node --check src/oauth.mjs && node --check src/gateway.mjs && node --check src/mcp.mjs && node --check src/protocols.mjs && node --check src/store.mjs && node --check integrations/opencode/plugin.mjs"
+  },
+  "keywords": [
+    "chatgpt",
+    "chatgpt-oauth",
+    "sign-in-with-chatgpt",
+    "oauth",
+    "mcp",
+    "coding-agents",
+    "second-opinion",
+    "provider-gateway",
+    "agent-skills",
+    "qwen",
+    "opencode",
+    "pi",
+    "gemini-cli",
+    "claude-code"
+  ],
+  "dependencies": {
+    "zod": "^4.1.8"
+  },
+  "author": "aeltawela",
+  "homepage": "https://github.com/aeltawela/ask-chatgpt#readme",
+  "bugs": {
+    "url": "https://github.com/aeltawela/ask-chatgpt/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aeltawela/ask-chatgpt.git"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "typebox": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-ai": {
+      "optional": true
+    },
+    "typebox": {
+      "optional": true
+    }
+  }
+}

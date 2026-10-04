@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest a focused improvement or new harness adapter.
+title: "feat: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: Please search existing issues first. Never include credentials or private conversation content.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and use case
+      description: What would this let a user do more safely or easily?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: input
+    id: harness
+    attributes:
+      label: Harness or client
+      placeholder: Qwen, OpenCode, Pi, Gemini CLI, Claude Code, or core

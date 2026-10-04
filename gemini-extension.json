@@ -1,0 +1,16 @@
+{
+  "name": "ask-chatgpt",
+  "version": "0.1.12",
+  "description": "Ask ChatGPT through the documented ChatGPT OAuth flow.",
+  "mcpServers": {
+    "chatgpt": {
+      "command": "node",
+      "args": [
+        "${extensionPath}/src/cli.mjs",
+        "mcp"
+      ]
+    }
+  },
+  "contextFileName": "GEMINI.md",
+  "excludeTools": []
+}
